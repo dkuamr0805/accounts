@@ -12,6 +12,7 @@
 	<groupId>com.demobank</groupId>
 	<artifactId>accounts</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>accounts</name>
 	<description>Microservice for accounts</description>
 	<properties>
@@ -81,6 +82,16 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.4.0</version>
+				<configuration>
+					<to>
+						<image>dkumar0805/${project.artifactId}:v1</image>
+					</to>
 				</configuration>
 			</plugin>
 		</plugins>

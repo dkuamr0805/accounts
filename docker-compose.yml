@@ -1,0 +1,39 @@
+services:
+ accounts:
+  image: "dkumar0805/accounts:v1"
+  container_name: accounts-ms
+  ports:
+  - "8080:8080"
+  deploy:
+   resources:
+    limits:
+     memory: 700m
+  networks:
+   - demobank
+ 
+ loans:
+  image: "dkumar0805/loans:v1"
+  container_name: accounts-ms
+  ports:
+  - "8090:8090"
+  deploy:
+   resources:
+    limits:
+     memory: 700m
+  networks:
+   - demobank
+    
+ carts:
+  image: "dkumar0805/loans:v1"
+  container_name: accounts-ms
+  ports:
+  - "9000:9000"
+  deploy:
+   resources:
+    limits:
+     memory: 700m
+  networks:
+   - demobank
+networks:
+   demobank:
+    driver: "bridge"

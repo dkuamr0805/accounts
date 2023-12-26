@@ -1,5 +1,7 @@
 package com.demobank.accounts.controller;
 
+import java.util.concurrent.TimeoutException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -22,6 +24,8 @@ import com.demobank.accounts.dto.ErrorResponseDto;
 import com.demobank.accounts.dto.ResponseDto;
 import com.demobank.accounts.service.AccountsService;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,11 +34,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "CRUD REST APIs for Accounts in EazyBank", description = "CRUD REST APIs in EazyBank to CREATE, UPDATE, FETCH AND DELETE account details")
 @RestController
 @RequestMapping(path = "/api")
 @Validated
+@Slf4j
 public class AccountsController {
 
 	@Autowired
@@ -102,14 +108,24 @@ public class AccountsController {
 		}
 	}
 
+	@Retry(name = "getBuildInfo", fallbackMethod = "getBuildInfoFallback")
 	@Operation(summary = "Get Build information", description = "Get Build information that is deployed into accounts microservice")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "HTTP Status OK"),
 			@ApiResponse(responseCode = "500", description = "HTTP Status Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))) })
 	@GetMapping("/build-info")
-	public ResponseEntity<String> getBuildInfo() {
+	public ResponseEntity<String> getBuildInfo() throws TimeoutException {
+//		Random random = new Random();
+		log.info("Invoked getBuildInfo() method");
+//		throw new NullPointerException("Custom exception is thrown");
 		return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
 	}
 
+	public ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+		log.info("Invoked getBuildInfoFallback() method");
+		return ResponseEntity.status(HttpStatus.OK).body("0.9");
+	}
+
+	@RateLimiter(name = "getJavaVersion", fallbackMethod = "getJavaVersionFallback")
 	@Operation(summary = "Get Java version", description = "Get Java versions details that is installed into accounts microservice")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "HTTP Status OK"),
 			@ApiResponse(responseCode = "500", description = "HTTP Status Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))) })
@@ -118,11 +134,16 @@ public class AccountsController {
 		return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
 	}
 
+	public ResponseEntity<String> getJavaVersionFallback(Throwable throwable) {
+		return ResponseEntity.status(HttpStatus.OK).body("Java 17");
+	}
+
 	@Operation(summary = "Get Contact Info", description = "Contact Info details that can be reached out in case of any issues")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "HTTP Status OK"),
 			@ApiResponse(responseCode = "500", description = "HTTP Status Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))) })
 	@GetMapping("/contact-info")
-	public ResponseEntity<AccountsContactInfoDto> getContactInfo() {
+	public ResponseEntity<AccountsContactInfoDto> getContactInfo() throws InterruptedException {
+//		Thread.sleep(12000);
 		return ResponseEntity.status(HttpStatus.OK).body(accountsContactInfoDto);
 	}
 

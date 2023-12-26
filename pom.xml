@@ -29,7 +29,6 @@
 			<groupId>io.opentelemetry.javaagent</groupId>
 			<artifactId>opentelemetry-javaagent</artifactId>
 			<version>1.32.0</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
@@ -125,7 +124,7 @@
 				<version>3.4.0</version>
 				<configuration>
 					<to>
-						<image>dkumar0805/${project.artifactId}:v6</image>
+						<image>dkumar0805/${project.artifactId}:v7</image>
 					</to>
 				</configuration>
 			</plugin>
